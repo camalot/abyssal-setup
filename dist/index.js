@@ -28499,6 +28499,7 @@ if (require.main === require.cache[eval('__filename')]) {
 async function main() {
     try {
         const url = core.getInput('abyssal-url');
+        const defaultUrl = 'https://github.com/camalot/abyssal/releases/download/{version}/abyssal-{platform}-{arch}.tar.gz';
         const version = core.getInput('abyssal-version');
         const platform = os.platform();
         let arch = os.arch();
@@ -28512,11 +28513,33 @@ async function main() {
                 platform,
                 version
             };
-            const rendered = url.replace(/\{(\w+?)\}/g, (_a, match) => {
+            const rendered = (url !== null && url !== void 0 ? url : defaultUrl).replace(/\{(\w+?)\}/g, (_a, match) => {
                 return context[match] || '';
             });
+            core.debug(`Downloading Abyssal from: ${rendered}`);
             const downloadPath = await cache.downloadTool(rendered);
-            toolPath = await cache.cacheFile(downloadPath, 'abyssal', 'abyssal', version);
+            let extractedPath = downloadPath;
+            if (rendered.endsWith('.tar.gz')) {
+                core.debug(`Extracting Abyssal from: ${downloadPath}`);
+                extractedPath = await cache.extractTar(downloadPath);
+            }
+            else if (rendered.endsWith('.zip')) {
+                core.debug(`Extracting Abyssal from: ${downloadPath}`);
+                extractedPath = await cache.extractZip(downloadPath);
+            }
+            core.debug(`Extracted Abyssal to: ${extractedPath}`);
+            // Rename/move the binary to 'abyssal'
+            const srcBinary = path.join(extractedPath, `abyssal-${platform}-${arch}`);
+            const destBinary = path.join(extractedPath, 'abyssal');
+            if (!fs.existsSync(srcBinary)) {
+                throw new Error(`Expected binary not found at ${srcBinary}`);
+            }
+            core.debug(`Renaming Abyssal binary from ${srcBinary} to ${destBinary}`);
+            await fs.promises.copyFile(srcBinary, destBinary);
+            await fs.promises.unlink(srcBinary); // Remove the original binary if it exists
+            core.debug(`Binary renamed successfully`);
+            toolPath = await cache.cacheFile(destBinary, 'abyssal', 'abyssal', version);
+            core.debug(`Cached Abyssal at: ${toolPath}`);
         }
         await chmod(path.join(toolPath, 'abyssal'), 0o755); // just in case we haven't preserved the executable bit
         core.addPath(toolPath);
