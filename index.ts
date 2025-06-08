@@ -19,15 +19,15 @@ if (require.main === module) {
 
 async function main(): Promise<void> {
   try {
-    const url: string = core.getInput('yq-url');
-    const version: string = core.getInput('yq-version');
+    const url: string = core.getInput('abyssal-url');
+    const version: string = core.getInput('abyssal-version');
     const platform: NodeJS.Platform = os.platform();
     let arch: string = os.arch();
     if (arch === 'x64') {
       arch = 'amd64';
     }
 
-    let toolPath: string = cache.find('yq', version, arch);
+    let toolPath: string = cache.find('abyssal', version, arch);
 
     if (!toolPath) {
       const context: { arch: string; platform: NodeJS.Platform; version: string } = {
@@ -40,10 +40,10 @@ async function main(): Promise<void> {
       });
 
       const downloadPath: string = await cache.downloadTool(rendered);
-      toolPath = await cache.cacheFile(downloadPath, 'yq', 'yq', version);
+      toolPath = await cache.cacheFile(downloadPath, 'abyssal', 'abyssal', version);
     }
 
-    await chmod(path.join(toolPath, 'yq'), 0o755); // just in case we haven't preserved the executable bit
+    await chmod(path.join(toolPath, 'abyssal'), 0o755); // just in case we haven't preserved the executable bit
     core.addPath(toolPath);
   } catch (error: any) {
     core.setFailed(error.message);

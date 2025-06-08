@@ -1,4 +1,4 @@
-name: 'setup-abyssal'
+name: 'abyssal-setup'
 description: 'Install a version of the Abyssal tool'
 inputs:
   abyssal-version:
