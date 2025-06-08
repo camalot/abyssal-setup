@@ -8,7 +8,7 @@ inputs:
   abyssal-url:
     description: 'The url to download Abyssal from'
     required: false
-    default: 'https://github.com/camalot/abyssal/releases/download/{version}/abyssal_{platform}_{arch}'
+    default: 'https://github.com/camalot/abyssal/releases/download/${{ inputs.abyssal-version }}/abyssal_{platform}_{arch}'
 runs:
   using: 'node20'
   main: 'dist/index.js'
