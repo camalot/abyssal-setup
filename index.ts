@@ -20,6 +20,7 @@ if (require.main === module) {
 async function main(): Promise<void> {
   try {
     const url: string = core.getInput('abyssal-url');
+    const defaultUrl: string = 'https://github.com/camalot/abyssal/releases/download/{version}/abyssal_{platform}_{arch}';
     const version: string = core.getInput('abyssal-version');
     const platform: NodeJS.Platform = os.platform();
     let arch: string = os.arch();
@@ -35,9 +36,11 @@ async function main(): Promise<void> {
         platform,
         version
       };
-      const rendered = url.replace(/\{(\w+?)\}/g, (_a, match) => {
+      const rendered = (url ?? defaultUrl).replace(/\{(\w+?)\}/g, (_a, match) => {
         return context[match as keyof typeof context] || '';
       });
+
+      core.debug(`Downloading Abyssal from: ${rendered}`);
 
       const downloadPath: string = await cache.downloadTool(rendered);
       toolPath = await cache.cacheFile(downloadPath, 'abyssal', 'abyssal', version);
