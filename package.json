@@ -16,9 +16,13 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc && ncc build ts-dist/index.js -o dist --license licenses.txt && cp LICENSE dist/LICENSE && rm -rf ts-dist",
+    "build": "npm run tsc && npm run ncc-build && npm run post-build",
+    "tsc": "tsc",
     "clean": "rm -rf tsdist dist",
-    "start": "node dist/index.js"
+    "start": "node dist/index.js",
+    "prepare-ts-dist": "cp package.json ./ts-dist && cd ts-dist && npm install --omit=dev",
+    "ncc-build": "npm run prepare-ts-dist && npx ncc build ts-dist/index.js -o dist --license licenses.txt",
+    "post-build": "cp LICENSE dist/LICENSE && rm -rf ts-dist"
   },
   "dependencies": {
     "@actions/core": "^1.11.1",
