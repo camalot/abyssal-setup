@@ -20,7 +20,7 @@ if (require.main === module) {
 async function main(): Promise<void> {
   try {
     const url: string = core.getInput('abyssal-url');
-    const defaultUrl: string = 'https://github.com/camalot/abyssal/releases/download/{version}/abyssal_{platform}_{arch}';
+    const defaultUrl: string = 'https://github.com/camalot/abyssal/releases/download/{version}/abyssal-{platform}-{arch}.tar.gz';
     const version: string = core.getInput('abyssal-version');
     const platform: NodeJS.Platform = os.platform();
     let arch: string = os.arch();
