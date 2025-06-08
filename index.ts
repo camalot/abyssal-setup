@@ -43,8 +43,24 @@ async function main(): Promise<void> {
       core.debug(`Downloading Abyssal from: ${rendered}`);
 
       const downloadPath: string = await cache.downloadTool(rendered);
-      toolPath = await cache.cacheFile(downloadPath, 'abyssal', 'abyssal', version);
+
+      let extractedPath = downloadPath;
+      if (rendered.endsWith('.tar.gz')) {
+        extractedPath = await cache.extractTar(downloadPath);
+      } else if (rendered.endsWith('.zip')) {
+        extractedPath = await cache.extractZip(downloadPath);
+      }
+      core.debug(`Extracted Abyssal to: ${extractedPath}`);
+
+      // Rename/move the binary to 'abyssal'
+      const srcBinary = path.join(extractedPath, `abyssal-${platform}-${arch}`);
+      const destBinary = path.join(extractedPath, 'abyssal');
+      await fs.promises.copyFile(srcBinary, destBinary);
+
+      toolPath = await cache.cacheFile(destBinary, 'abyssal', 'abyssal', version);
     }
+
+    
 
     await chmod(path.join(toolPath, 'abyssal'), 0o755); // just in case we haven't preserved the executable bit
     core.addPath(toolPath);
