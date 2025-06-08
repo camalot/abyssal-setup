@@ -1,0 +1,32 @@
+{
+  "name": "abyssal-setup",
+  "version": "1.0.0",
+  "description": "",
+  "homepage": "https://github.com/camalot/abyssal-setup#readme",
+  "bugs": {
+    "url": "https://github.com/camalot/abyssal-setup/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/camalot/abyssal-setup.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc && ncc build ts-dist/index.js -o dist --license licenses.txt && cp LICENSE dist/LICENSE && rm -rf ts-dist",
+    "clean": "rm -rf tsdist dist",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@actions/core": "^1.11.1",
+    "@actions/tool-cache": "^2.0.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.30",
+    "@vercel/ncc": "^0.38.3",
+    "typescript": "^5.8.3"
+  }
+}

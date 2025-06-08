@@ -1,0 +1,14 @@
+name: 'setup-abyssal'
+description: 'Install a version of the Abyssal tool'
+inputs:
+  abyssal-version:
+    description: 'What version of Abyssal to install'
+    required: false
+    default: '0.1.1'
+  abyssal-url:
+    description: 'The url to download Abyssal from'
+    required: false
+    default: 'https://github.com/camalot/abyssal/releases/download/{version}/abyssal_{platform}_{arch}'
+runs:
+  using: 'node20'
+  main: 'dist/index.js'
