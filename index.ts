@@ -66,9 +66,8 @@ async function main(): Promise<void> {
       core.debug(`Binary renamed successfully`);
       toolPath = await cache.cacheFile(destBinary, 'abyssal', 'abyssal', version);
       core.debug(`Cached Abyssal at: ${toolPath}`);
-    }
 
-    
+    }
 
     await chmod(path.join(toolPath, 'abyssal'), 0o755); // just in case we haven't preserved the executable bit
     core.addPath(toolPath);
