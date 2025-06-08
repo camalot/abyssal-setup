@@ -28496,15 +28496,38 @@ if (require.main === require.cache[eval('__filename')]) {
         process.exit(1);
     });
 }
+async function getLatestVersion() {
+    const url = 'https://api.github.com/repos/camalot/abyssal/releases/latest';
+    const response = await fetch(url, {
+        headers: {
+            'Accept': 'application/vnd.github.v3+json',
+            'User-Agent': 'Abyssal Action'
+        }
+    });
+    if (!response.ok) {
+        throw new Error(`Failed to fetch latest version: ${response.statusText}`);
+    }
+    const data = await response.json();
+    return data.tag_name;
+}
 async function main() {
     try {
         const url = core.getInput('abyssal-url');
         const defaultUrl = 'https://github.com/camalot/abyssal/releases/download/{version}/abyssal-{platform}-{arch}.tar.gz';
-        const version = core.getInput('abyssal-version');
+        let version = core.getInput('abyssal-version');
         const platform = os.platform();
         let arch = os.arch();
         if (arch === 'x64') {
             arch = 'amd64';
+        }
+        if (!version || version === 'latest' || version === undefined || version === 'undefined') {
+            core.debug('No version specified, fetching latest version');
+            version = await getLatestVersion();
+            core.debug(`Latest version fetched: ${version}`);
+            core.setOutput('abyssal-version', version);
+        }
+        else {
+            core.setOutput('abyssal-version', version);
         }
         let toolPath = cache.find('abyssal', version, arch);
         if (!toolPath) {

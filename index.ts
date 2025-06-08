@@ -17,15 +17,39 @@ if (require.main === module) {
   });
 }
 
+async function getLatestVersion(): Promise<string> {
+  const url = 'https://api.github.com/repos/camalot/abyssal/releases/latest';
+  const response = await fetch(url, {
+    headers: {
+      'Accept': 'application/vnd.github.v3+json',
+      'User-Agent': 'Abyssal Action'
+    }
+  });
+  if (!response.ok) {
+    throw new Error(`Failed to fetch latest version: ${response.statusText}`);
+  }
+  const data = await response.json();
+  return data.tag_name;
+}
+
 async function main(): Promise<void> {
   try {
     const url: string = core.getInput('abyssal-url');
     const defaultUrl: string = 'https://github.com/camalot/abyssal/releases/download/{version}/abyssal-{platform}-{arch}.tar.gz';
-    const version: string = core.getInput('abyssal-version');
+    let version: string = core.getInput('abyssal-version');
     const platform: NodeJS.Platform = os.platform();
     let arch: string = os.arch();
     if (arch === 'x64') {
       arch = 'amd64';
+    }
+
+    if (!version || version === 'latest' || version === undefined || version === 'undefined') {
+      core.debug('No version specified, fetching latest version');
+      version = await getLatestVersion();
+      core.debug(`Latest version fetched: ${version}`);
+      core.setOutput('abyssal-version', version);
+    } else {
+      core.setOutput('abyssal-version', version);
     }
 
     let toolPath: string = cache.find('abyssal', version, arch);
@@ -66,7 +90,6 @@ async function main(): Promise<void> {
       core.debug(`Binary renamed successfully`);
       toolPath = await cache.cacheFile(destBinary, 'abyssal', 'abyssal', version);
       core.debug(`Cached Abyssal at: ${toolPath}`);
-
     }
 
     await chmod(path.join(toolPath, 'abyssal'), 0o755); // just in case we haven't preserved the executable bit
