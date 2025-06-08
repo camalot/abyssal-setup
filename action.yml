@@ -4,7 +4,7 @@ inputs:
   abyssal-version:
     description: 'What version of Abyssal to install'
     required: false
-    default: 'v0.1.6'
+    default: 'v0.1.7'
   abyssal-url:
     description: 'The url to download Abyssal from'
     required: false
