@@ -46,8 +46,10 @@ async function main(): Promise<void> {
 
       let extractedPath = downloadPath;
       if (rendered.endsWith('.tar.gz')) {
+        core.debug(`Extracting Abyssal from: ${downloadPath}`);
         extractedPath = await cache.extractTar(downloadPath);
       } else if (rendered.endsWith('.zip')) {
+        core.debug(`Extracting Abyssal from: ${downloadPath}`);
         extractedPath = await cache.extractZip(downloadPath);
       }
       core.debug(`Extracted Abyssal to: ${extractedPath}`);
@@ -55,9 +57,15 @@ async function main(): Promise<void> {
       // Rename/move the binary to 'abyssal'
       const srcBinary = path.join(extractedPath, `abyssal-${platform}-${arch}`);
       const destBinary = path.join(extractedPath, 'abyssal');
+      if (!fs.existsSync(srcBinary)) {
+        throw new Error(`Expected binary not found at ${srcBinary}`);
+      }
+      core.debug(`Renaming Abyssal binary from ${srcBinary} to ${destBinary}`);
       await fs.promises.copyFile(srcBinary, destBinary);
-
+      await fs.promises.unlink(srcBinary); // Remove the original binary if it exists
+      core.debug(`Binary renamed successfully`);
       toolPath = await cache.cacheFile(destBinary, 'abyssal', 'abyssal', version);
+      core.debug(`Cached Abyssal at: ${toolPath}`);
     }
 
     
